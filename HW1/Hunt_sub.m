@@ -37,7 +37,6 @@ ave = abs(fftshift(ave))/49;
 % normalize
 ave = ave/max(max(max(ave)));
 
-
 [val, ind] = max(ave(:));
 [a,b,c] = ind2sub(size(ave),ind);
 
