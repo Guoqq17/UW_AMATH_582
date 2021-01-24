@@ -54,7 +54,7 @@ for j = 1:49
     utn = fftn(un);
     utnf = fftshift(utn) .* filter;
     unf = ifftn(utnf);
-    
+
     [val, ind] = max(abs(unf(:)));
     [a,b,c] = ind2sub(size(unf),ind);
     pos_sub(1,j) = a;
@@ -68,7 +68,7 @@ xlabel('x')
 ylabel('y')
 zlabel('z')
 
-%% predict the trajectory
+%% 3. predict the trajectory
 
 x_pre = x(pos_sub(1, 30: 49));
 y_pre = y(pos_sub(2, 30: 49));
