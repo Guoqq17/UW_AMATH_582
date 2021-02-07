@@ -84,7 +84,7 @@ for s_i=1:length(y_all)/(Fs*step)
         gyts = abs(fftshift(gyt));
         [val, ind] = max(gyts(n/2:end));
         [a,b] = ind2sub(size(gyts),ind+n/2-1);
-        s_filter = exp(-0.05 * ((ks - ks(b)).^2));
+        s_filter = exp(-0.002 * ((ks - ks(b)).^2));
         gytf = fftshift(gyt).*s_filter;
         s_gabor(i,:) = abs(gytf);
     end
@@ -96,6 +96,7 @@ for s_i=1:length(y_all)/(Fs*step)
     axis([0, tr_gnr, 0, 1000])
     title('Log of the spectrogram of GNR')
     drawnow
+
 end
 %%
 
