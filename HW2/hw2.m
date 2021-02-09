@@ -7,7 +7,7 @@ xlabel('Time [sec]'); ylabel('Amplitude');
 title('Sweet Child O Mine');
 p8 = audioplayer(y,Fs); playblocking(p8);
 
-%% task 1, GNR
+%% GNR
 [y, Fs] = audioread('GNR.m4a', [1, 3*Fs]);      % read first 3 seconds
 tr_gnr = length(y)/Fs;              % record time in seconds
 L = tr_gnr;                         % time domin
@@ -99,11 +99,11 @@ colormap('hot'), xlabel('Time [sec]'), ylabel('Frequency [Hz]')
 axis([0, tr_gnr, 0, 1000])
 title('spectrogram of GNR')
 
-%% task 1, Floyd
+%% Floyd
 clear; clc;
 close all
 [y, Fs] = audioread('Floyd.m4a');
-[y, Fs] = audioread('Floyd.m4a', [1, 3*Fs]);      % read first 3 seconds
+[y, Fs] = audioread('Floyd.m4a', [1, 10*Fs]);      % read first 3 seconds
 tr_floyd = length(y)/Fs;              % record time in seconds
 L = tr_floyd;                         % time domin
 n = length(y);                      % Fourier modes
@@ -113,7 +113,7 @@ k = (2*pi/L)*[0:n/2-1, -n/2:-1];
 ks = fftshift(k);
 
 % create Gabor filter
-width_t_all = [10, 100, 1000, 10000];        % width of the filter
+width_t_all = [10, 100, 1000, 10000];       % width of the filter
 width_q_all = [0.02, 0.002, 0.0002, 0.00002];           % width of the filter in frequency domain
 num_gabor = 100;                            % number of the time points to take
 t_gabor = linspace(0, t(end), num_gabor);   % discretize the time
@@ -198,7 +198,8 @@ for s_i=1:length(y_all)/(Fs*step)+1
         [a,b] = ind2sub(size(gyts),ind+n/2-1);
         s_filter = exp(-0.002 * ((ks - ks(b)).^2));
         gytf = fftshift(gyt).*s_filter;
-        s_gabor(i,:) = abs(gytf);
+%         s_gabor(i,:) = abs(gytf);
+        s_gabor(i,:) = gyts;
     end
     
 %     s_gabor_all((s_i-1)*num_gabor+1:s_i*num_gabor, (s_i-1)*step*Fs+1:s_i*step*Fs) = s_gabor;
