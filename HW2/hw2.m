@@ -240,29 +240,69 @@ for s_i=1:length(y_all)/(Fs*step)+1
     subplot(2,5,s_i)
     pcolor(t_gabor + step*(s_i-1), ks/(2*pi), log(s_gabor.' + 1)), shading interp
     colormap('hot'), xlabel('Time [sec]'), ylabel('Frequency [Hz]')
-    axis([step*(s_i-1), step*(s_i-1) + tr_floyd, 0, 1000])
+    axis([step*(s_i-1), step*(s_i-1) + tr_floyd, 0, 250])
     title('Spectrogram of Floyd')
     drawnow
 end
-%% tune wq
+%% all data to find guitar
+[y_all, Fs] = audioread('Floyd.m4a');
+step = 6;                               % time step to cut the whole audio to slices
+num_gabor = 100;                        % number of the time points to take at each slice
+s_gabor_all = zeros(num_gabor*round(length(y_all)/(Fs*step)), length(y_all));
+n_all = length(y_all);
+L_all = length(y_all)/Fs;
+k_all = (2*pi/L_all)*[0:n_all/2-1, -n_all/2:-1];
+ks_all = fftshift(k_all);
+
 figure(5)
-for w_q = 1:1:length(width_q_all)
+for s_i=1:length(y_all)/(Fs*step)+1
+    if s_i*step*Fs < length(y_all)
+        [y, Fs] = audioread('Floyd.m4a', [(s_i-1)*step*Fs+1, s_i*step*Fs]);
+    else
+        [y, Fs] = audioread('Floyd.m4a', [(s_i-1)*step*Fs+1, length(y_all)-1]);
+    end
+    
+    tr_floyd = length(y)/Fs;                  % record time in seconds
+    L = tr_floyd;                             % time domin
+    n = length(y);                          % Fourier modes
+    t1 = linspace(0, L, n + 1);
+    t = t1(1:n);
+    k = (2*pi/L)*[0:n/2-1, -n/2:-1];
+    ks = fftshift(k);
+
+    % create Gabor filter
+    width = 100;                                % width of the filter
+    t_gabor = linspace(0, t(end), num_gabor);   % discretize the time
+    s_gabor = zeros(length(t_gabor), n);
+
+    % create the spectrogram
     for i=1:length(t_gabor)
-        gabor = exp(-100*(t - t_gabor(i)).^2);
+        gabor = exp(-width*(t - t_gabor(i)).^2);
         gyt = fft(gabor.*y.');
         gyts = abs(fftshift(gyt));
-        [val, ind] = max(gyts(n/2:end));
+        [val, ind] = max(gyts(n/2:n/2 + 150 * 2*pi));
         [a,b] = ind2sub(size(gyts),ind+n/2-1);
-        s_filter = exp(-width_q_all(w_q) * ((ks - ks(b)).^2));
+        s_filter = zeros(1, length(ks));
+        j = 1;
+        c_q = ks(b) * j;
+        while c_q <= 1000*2*pi
+            s_filter = s_filter + exp(-0.0002 * ((ks - c_q).^2));
+            j = j + 1;
+            c_q = ks(b) * j;
+        end
+        s_filter = 1-s_filter;
         gytf = fftshift(gyt).*s_filter;
         s_gabor(i,:) = abs(gytf);
+%         s_gabor(i,:) = gyts;
     end
-
-    % plot the spectrogram
-    subplot(1, length(width_q_all), w_q)
-    pcolor(t_gabor, ks/(2*pi), log(s_gabor.' + 1)), shading interp
+    
+%     s_gabor_all((s_i-1)*num_gabor+1:s_i*num_gabor, (s_i-1)*step*Fs+1:s_i*step*Fs) = s_gabor;
+    
+    subplot(2,5,s_i)
+    pcolor(t_gabor + step*(s_i-1), ks/(2*pi), log(s_gabor.' + 1)), shading interp
     colormap('hot'), xlabel('Time [sec]'), ylabel('Frequency [Hz]')
-    axis([0, tr_floyd, 0, 1000])
-    title(['wq = ', num2str(width_q_all(w_q))])
+    axis([step*(s_i-1), step*(s_i-1) + tr_floyd, 0, 1000])
+    title('Spectrogram of Floyd')
+    drawnow
 end
 
