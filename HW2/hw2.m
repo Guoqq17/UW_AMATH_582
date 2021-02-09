@@ -119,7 +119,7 @@ num_gabor = 100;                            % number of the time points to take
 t_gabor = linspace(0, t(end), num_gabor);   % discretize the time
 s_gabor = zeros(length(t_gabor), n);        % matrix to store the Gabor transforms
 
-% tune wt
+%% tune wt
 figure(4)
 for w_t = 1:1:length(width_t_all)
     for i=1:length(t_gabor)
