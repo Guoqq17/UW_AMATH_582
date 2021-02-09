@@ -19,8 +19,8 @@ k = (2*pi/L)*[0:n/2-1, -n/2:-1];
 ks = fftshift(k);
 
 % create Gabor filter
-width_t_all = [10, 100, 1000, 5000];        % width of the filter
-width_q_all = [0.002, 0.0002, 0.00002, 0.000002];           % width of the filter in frequency domain
+width_t_all = [10, 100, 1000, 10000];        % width of the filter
+width_q_all = [0.02, 0.002, 0.0002, 0.00002];           % width of the filter in frequency domain
 num_gabor = 100;                            % number of the time points to take
 t_gabor = linspace(0, t(end), num_gabor);   % discretize the time
 s_gabor = zeros(length(t_gabor), n);        % matrix to store the Gabor transforms
@@ -46,7 +46,7 @@ end
 figure(3)
 for w_q = 1:1:length(width_q_all)
     for i=1:length(t_gabor)
-        gabor = exp(-1000*(t - t_gabor(i)).^2);
+        gabor = exp(-100*(t - t_gabor(i)).^2);
         gyt = fft(gabor.*y.');
         gyts = abs(fftshift(gyt));
         [val, ind] = max(gyts(n/2:end));
@@ -60,7 +60,7 @@ for w_q = 1:1:length(width_q_all)
     subplot(1, length(width_q_all), w_q)
     pcolor(t_gabor, ks/(2*pi), log(s_gabor.' + 1)), shading interp
     colormap('hot'), xlabel('Time [sec]'), ylabel('Frequency [Hz]')
-    axis([0, tr_gnr, 0, 1000])
+    axis([0, tr_gnr, 0, 2000])
     title(['wq = ', num2str(width_q_all(w_q))])
 end
 
