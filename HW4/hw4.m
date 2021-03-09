@@ -50,14 +50,14 @@ num_v=[2,3,4,5,10,30,50];
 accuracy_v=zeros(1,length(num_v));
 
 for i=1:1:length(num_v)
-    
+
     x1_train=proj(labels_train==0,2:num_v(i));
     x2_train=proj(labels_train==4,2:num_v(i));
     [len1,temp]=size(x1_train);
     [len2,temp]=size(x2_train);
     xtrain=[x1_train; x2_train];
     ctrain=[0*ones(len1,1); 4*ones(len2,1)];
-    
+
     xtest_temp=(U'*data_test)';
     x1_test=xtest_temp(labels_test==0,2:num_v(i));
     x2_test=xtest_temp(labels_test==4,2:num_v(i));
@@ -65,9 +65,9 @@ for i=1:1:length(num_v)
     [len2,temp]=size(x2_test);
     xtest=[x1_test; x2_test];
     ctest=[0*ones(len1,1); 4*ones(len2,1)];
-    
+
     pre=classify(xtest,xtrain,ctrain);
-        
+
     errorNum=sum(abs(ctest-pre)>0);
     accuracy_v(i)=1-errorNum/length(ctest);
 end
@@ -98,7 +98,7 @@ for i=0:1:8
 
         pre=classify(xtest,xtrain,ctrain);
 
-        errorNum=sum(abs(ctest-pre)>0);       
+        errorNum=sum(abs(ctest-pre)>0);
         accuracy_lda(i+1,j+1)=1-errorNum/length(ctest);
     end
 end
@@ -125,7 +125,7 @@ ctest=[0*ones(len1,1); 4*ones(len2,1); 7*ones(len3,1)];
 
 pre=classify(xtest,xtrain,ctrain);
 
-errorNum=sum(abs(ctest-pre)>0);       
+errorNum=sum(abs(ctest-pre)>0);
 accuracy_047=1-errorNum/length(ctest)
 
 figure(5)
@@ -142,7 +142,7 @@ Mdl = fitctree(xtrain,labels_train,'OptimizeHyperparameters','auto');
 
 pre=predict(Mdl,xtest);
 
-errorNum=sum(abs(labels_test-pre)>0);       
+errorNum=sum(abs(labels_test-pre)>0);
 accuracy_ct=1-errorNum/length(labels_test)
 
 %% classification using SVM, all digits
@@ -164,10 +164,9 @@ for j = 1:numel(classes)
     Scores(:,j) = score(:,2); % Second column contains positive-class scores
 end
 [~,maxScore] = max(Scores,[],2);
-errorNum=sum(abs(labels_test-maxScore)>0);       
-accuracy_svm=1-errorNum/length(labels_test)
-
-%% hardest and easiest pairs
+errorNum=sum(abs(labels_test+1-maxScore)>0);
+accuracy_ct=1-errorNum/length(labels_test)
+%%
 
 pair = [0,1]; % easiest
 pair = [4,9]; % hardest
@@ -195,7 +194,7 @@ Mdl_ct = fitctree(xtrain,labels_train,'OptimizeHyperparameters','auto');
 
 pre=predict(Mdl_ct,xtest);
 
-errorNum=sum(abs(ctest-pre)>0);       
+errorNum=sum(abs(ctest-pre)>0);
 accuracy_ct_2=1-errorNum/length(ctest)
 
 % SVM
@@ -206,7 +205,5 @@ Mdl_svm = fitcsvm(xtrain,ctrain,'OptimizeHyperparameters','auto',...
 
 pre=predict(Mdl_svm,xtest);
 
-errorNum=sum(abs(ctest-pre)>0);       
+errorNum=sum(abs(ctest-pre)>0);
 accuracy_svm_2=1-errorNum/length(ctest);
-
-
