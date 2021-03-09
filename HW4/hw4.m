@@ -146,9 +146,9 @@ errorNum=sum(abs(labels_test-pre)>0);
 accuracy_ct=1-errorNum/length(labels_test)
 
 %% SVM classifier with training data, labels and test set
-xtrain=proj(:,2:10);
+xtrain=proj(:,2:10)/max(max(proj(:,2:10)));
 xtest_temp=(U'*data_test)';
-xtest=xtest_temp(:,2:10);
+xtest=xtest_temp(:,2:10)/max(max(xtest_temp(:,2:10)));
 rng default
 Mdl = fitcecoc(xtrain,labels_train,'OptimizeHyperparameters','auto',...
     'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName',...
