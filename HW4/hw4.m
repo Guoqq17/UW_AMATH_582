@@ -138,8 +138,8 @@ for i=0:1:8
         episode=20;
         accu_temp=zeros(1,episode);
         for k=1:1:episode
-            x1=[V(labels==i,2),V(labels==i,3),V(labels==i,5)];
-            x2=[V(labels==j,2),V(labels==j,3),V(labels==j,5)];
+            x1=V(labels==i,2:5);
+            x2=V(labels==j,2:5);
             q1=randperm(length(x1));
             q2=randperm(length(x2));
             len1=round(length(x1)*0.8);
@@ -150,7 +150,7 @@ for i=0:1:8
             ctrain=[i*ones(len1,1); j*ones(len2,1)];
             ctest=[i*ones(length(x1)-len1,1); j*ones(length(x2)-len2,1)];
             
-            Mdl = fitcsvm(xtrain,ctrain,'KernelFunction','polynomial');
+            Mdl = fitcsvm(xtrain,ctrain,'KernelFunction','rbf');
             pre = predict(Mdl,xtest);
 
             errorNum=sum(abs(ctest-pre)>0);
@@ -161,28 +161,18 @@ for i=0:1:8
 end
 
 %% classification tree on fisheriris data
-%% test maximum split numbers
-MaxSplits=[10,20,30,40,50,100,200];
-accuracy=zeros(1,length(MaxSplits));
-X=[V(:,2),V(:,3),V(:,5)];
-for i=1:1:length(MaxSplits)
-    tree=fitctree(X,labels,'MaxNumSplits',MaxSplits(i),'CrossVal','on');
-    classError = kfoldLoss(tree);
-    accuracy(i)=1-classError;
-end
-%% test all pairs
 accuracy_tree=zeros(10,10);
 for i=0:1:8
     for j=i+1:1:9
-        x1=[V(labels==i,2),V(labels==i,3),V(labels==i,5)];
-        x2=[V(labels==j,2),V(labels==j,3),V(labels==j,5)];
+        x1=V(labels==i,2:5);
+        x2=V(labels==j,2:5);
         len1=length(x1);
         len2=length(x2);
 
         xtrain=[x1; x2];
         ctrain=[i*ones(len1,1); j*ones(len2,1)];
 
-        tree=fitctree(xtrain,ctrain,'MaxNumSplits',40,'CrossVal','on');
+        tree=fitctree(xtrain,ctrain,'MaxNumSplits',10,'CrossVal','on');
         classError = kfoldLoss(tree);
         accuracy_tree(i+1,j+1)=1-classError;
     end
