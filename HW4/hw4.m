@@ -170,18 +170,18 @@ end
 
 [~,maxScore] = max(Scores,[],2);
 errorNum=sum(abs(labels_test+1-maxScore)>0);
-accuracy_ct=1-errorNum/length(labels_test)
+accuracy_svm=1-errorNum/length(labels_test)
 
 %% easiest and hardest pairs
-pair = [0,1]; % easiest
-% pair = [4,9]; % hardest
+% pair = [0,1]; % easiest
+pair = [4,9]; % hardest
 
 x1_train=proj(labels_train==pair(1),2:10);
 x2_train=proj(labels_train==pair(2),2:10);
 [len1,temp]=size(x1_train);
 [len2,temp]=size(x2_train);
 xtrain=[x1_train; x2_train];
-ctrain=[i*ones(len1,1); j*ones(len2,1)];
+ctrain=[pair(1)*ones(len1,1); pair(2)*ones(len2,1)];
 
 xtest_temp=(U'*data_test)';
 x1_test=xtest_temp(labels_test==pair(1),2:10);
@@ -189,13 +189,10 @@ x2_test=xtest_temp(labels_test==pair(2),2:10);
 [len1,temp]=size(x1_test);
 [len2,temp]=size(x2_test);
 xtest=[x1_test; x2_test];
-ctest=[i*ones(len1,1); j*ones(len2,1)];
+ctest=[pair(1)*ones(len1,1); pair(2)*ones(len2,1)];
 
 % CT
-xtrain=proj(:,2:10);
-xtest_temp=(U'*data_test)';
-xtest=xtest_temp(:,2:10);
-Mdl_ct = fitctree(xtrain,labels_train,'OptimizeHyperparameters','auto');
+Mdl_ct = fitctree(xtrain,ctrain,'OptimizeHyperparameters','auto');
 
 pre=predict(Mdl_ct,xtest);
 
@@ -204,11 +201,10 @@ accuracy_ct_2=1-errorNum/length(ctest)
 
 % SVM
 rng default
-Mdl_svm = fitcsvm(xtrain,ctrain,'OptimizeHyperparameters','auto',...
-    'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName',...
-    'expected-improvement-plus'))
+Mdl_svm = fitcsvm(xtrain,ctrain,'Standardize',true,...
+        'KernelFunction','rbf','BoxConstraint',1);
 
 pre=predict(Mdl_svm,xtest);
 
 errorNum=sum(abs(ctest-pre)>0);
-accuracy_svm_2=1-errorNum/length(ctest);
+accuracy_svm_2=1-errorNum/length(ctest)
