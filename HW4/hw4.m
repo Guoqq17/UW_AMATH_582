@@ -160,6 +160,8 @@ errorNum=sum(abs(labels_test-pre)>0);
 accuracy_svm=1-errorNum/length(labels_test)
 %%
 xtrain=proj(:,2:10)/max(max(S));
+xtest=xtest_temp(:,2:10)/max(max(S));
+
 SVMModels = cell(10,1);
 classes = 0:1:9;
 rng(1); % For reproducibility
@@ -171,6 +173,11 @@ for j = 1:numel(classes)
         'KernelFunction','rbf','BoxConstraint',1);
 end
 
+for j = 1:numel(classes)
+    [~,score] = predict(SVMModels{j},xtest);
+    Scores(:,j) = score(:,2); % Second column contains positive-class scores
+end
+[~,maxScore] = max(Scores,[],2);
 
 %%
 accuracy_svm=zeros(10,10);
