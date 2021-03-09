@@ -158,6 +158,18 @@ pre=predict(Mdl,xtest);
 
 errorNum=sum(abs(labels_test-pre)>0);       
 accuracy_svm=1-errorNum/length(labels_test)
+%%
+xtrain=proj(:,2:10)/max(max(S));
+SVMModels = cell(10,1);
+classes = 0:1:9;
+rng(1); % For reproducibility
+
+for j = 1:numel(classes)
+    j
+    indx = labels_train==classes(j); % Create binary classes for each classifier
+    SVMModels{j} = fitcsvm(xtrain,indx,'ClassNames',[false true],'Standardize',true,...
+        'KernelFunction','rbf','BoxConstraint',1);
+end
 
 
 %%
