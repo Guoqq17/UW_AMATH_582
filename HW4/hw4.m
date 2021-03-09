@@ -178,7 +178,8 @@ for j = 1:numel(classes)
     Scores(:,j) = score(:,2); % Second column contains positive-class scores
 end
 [~,maxScore] = max(Scores,[],2);
-
+errorNum=sum(abs(labels_test+1-maxScore)>0);       
+accuracy_ct=1-errorNum/length(labels_test)
 %%
 accuracy_svm=zeros(10,10);
 for i=0:1:8
