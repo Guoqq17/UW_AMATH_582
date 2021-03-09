@@ -166,7 +166,8 @@ end
 [~,maxScore] = max(Scores,[],2);
 errorNum=sum(abs(labels_test+1-maxScore)>0);
 accuracy_ct=1-errorNum/length(labels_test)
-%%
+
+%% easiest and hardest pairs
 
 pair = [0,1]; % easiest
 pair = [4,9]; % hardest
