@@ -133,7 +133,7 @@ bar(pre)
 xlabel('case number (first 980 are 0, the following 982 are 4, the rest are 7)')
 ylabel('prediction results')
 
-%% classification using DT, all digits
+%% classification using CT, all digits
 
 xtrain=proj(:,2:10);
 xtest_temp=(U'*data_test)';
@@ -145,20 +145,7 @@ pre=predict(Mdl,xtest);
 errorNum=sum(abs(labels_test-pre)>0);       
 accuracy_ct=1-errorNum/length(labels_test)
 
-%% SVM classifier with training data, labels and test set
-xtrain=proj(:,2:10)/max(max(proj(:,2:10)));
-xtest_temp=(U'*data_test)';
-xtest=xtest_temp(:,2:10)/max(max(xtest_temp(:,2:10)));
-rng default
-Mdl = fitcecoc(xtrain,labels_train,'OptimizeHyperparameters','auto',...
-    'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName',...
-    'expected-improvement-plus'));
-
-pre=predict(Mdl,xtest);
-
-errorNum=sum(abs(labels_test-pre)>0);       
-accuracy_svm=1-errorNum/length(labels_test)
-%%
+%% classification using SVM, all digits
 xtrain=proj(:,2:10)/max(max(S));
 xtest=xtest_temp(:,2:10)/max(max(S));
 
@@ -167,7 +154,6 @@ classes = 0:1:9;
 rng(1); % For reproducibility
 
 for j = 1:numel(classes)
-    j
     indx = labels_train==classes(j); % Create binary classes for each classifier
     SVMModels{j} = fitcsvm(xtrain,indx,'ClassNames',[false true],'Standardize',true,...
         'KernelFunction','rbf','BoxConstraint',1);
@@ -178,53 +164,49 @@ for j = 1:numel(classes)
     Scores(:,j) = score(:,2); % Second column contains positive-class scores
 end
 [~,maxScore] = max(Scores,[],2);
+errorNum=sum(abs(labels_test-maxScore)>0);       
+accuracy_svm=1-errorNum/length(labels_test)
 
-%%
-accuracy_svm=zeros(10,10);
-for i=0:1:8
-    for j=i+1:1:9
-        episode=20;
-        accu_temp=zeros(1,episode);
-        for k=1:1:episode
-            x1=V(labels_train==i,2:5);
-            x2=V(labels_train==j,2:5);
-            q1=randperm(length(x1));
-            q2=randperm(length(x2));
-            len1=round(length(x1)*0.8);
-            len2=round(length(x2)*0.8);
+%% hardest and easiest pairs
 
-            xtrain=[x1(q1(1:len1),:); x2(q2(1:len2),:)];
-            xtest=[x1(q1(len1+1:end),:); x2(q2(len2+1:end),:)];
-            ctrain=[i*ones(len1,1); j*ones(len2,1)];
-            ctest=[i*ones(length(x1)-len1,1); j*ones(length(x2)-len2,1)];
-            
-            Mdl = fitcsvm(xtrain,ctrain,'KernelFunction','rbf');
-            pre = predict(Mdl,xtest);
+pair = [0,1]; % easiest
+pair = [4,9]; % hardest
 
-            errorNum=sum(abs(ctest-pre)>0);
-            accu_temp(k)=1-errorNum/length(ctest);
-        end
-        accuracy_svm(i+1,j+1)=mean(accu_temp);
-    end
-end
+x1_train=proj(labels_train==pair(1),2:10);
+x2_train=proj(labels_train==pair(2),2:10);
+[len1,temp]=size(x1_train);
+[len2,temp]=size(x2_train);
+xtrain=[x1_train; x2_train];
+ctrain=[i*ones(len1,1); j*ones(len2,1)];
 
+xtest_temp=(U'*data_test)';
+x1_test=xtest_temp(labels_test==pair(1),2:10);
+x2_test=xtest_temp(labels_test==pair(2),2:10);
+[len1,temp]=size(x1_test);
+[len2,temp]=size(x2_test);
+xtest=[x1_test; x2_test];
+ctest=[i*ones(len1,1); j*ones(len2,1)];
 
-%% test all pairs
-accuracy_tree=zeros(10,10);
-for i=0:1:8
-    for j=i+1:1:9
-        x1=V(labels_train==i,2:5);
-        x2=V(labels_train==j,2:5);
-        len1=length(x1);
-        len2=length(x2);
+% CT
+xtrain=proj(:,2:10);
+xtest_temp=(U'*data_test)';
+xtest=xtest_temp(:,2:10);
+Mdl_ct = fitctree(xtrain,labels_train,'OptimizeHyperparameters','auto');
 
-        xtrain=[x1; x2];
-        ctrain=[i*ones(len1,1); j*ones(len2,1)];
+pre=predict(Mdl_ct,xtest);
 
-        tree=fitctree(xtrain,ctrain,'MaxNumSplits',40,'CrossVal','on');
-        classError = kfoldLoss(tree);
-        accuracy_tree(i+1,j+1)=1-classError;
-    end
-end
+errorNum=sum(abs(ctest-pre)>0);       
+accuracy_ct_2=1-errorNum/length(ctest)
+
+% SVM
+rng default
+Mdl_svm = fitcsvm(xtrain,ctrain,'OptimizeHyperparameters','auto',...
+    'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName',...
+    'expected-improvement-plus'))
+
+pre=predict(Mdl_svm,xtest);
+
+errorNum=sum(abs(ctest-pre)>0);       
+accuracy_svm_2=1-errorNum/length(ctest);
 
 
