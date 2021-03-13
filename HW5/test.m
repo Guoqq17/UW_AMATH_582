@@ -30,7 +30,7 @@ xlabel('Order of singular value','Fontsize',12)
 ylabel('Proportion','Fontsize',12)
 
 % low-rank approximation
-r=1; % define the rank based on the singular value spectrum
+r=50; % define the rank based on the singular value spectrum
 U2=U(:,1:r);
 Sigma2=Sigma(1:r,1:r);
 V2=V(:,1:r);
@@ -43,20 +43,34 @@ Phi=X2*V2/Sigma2*eV; % DMD modes
 lambda=diag(D);
 omega=log(lambda)/dt;
 
-x1=X1(:,1);
-y0=Phi\x1;
+bg = find(abs(omega)<1e-2);
+fg = setdiff(1:r, bg);
 
-x_modes=zeros(r,length(t));
+omega_fg = omega(fg); % foreground
+Phi_fg = Phi(:,fg); % DMD foreground modes
+
+omega_bg = omega(bg); % background
+Phi_bg = Phi(:,bg); % DMD background mode
+
+x1=X1(:,1);
+y0=Phi_bg\x1;
+
+x_modes=zeros(length(omega_bg),length(t));
 for iter=1:length(t)
-    x_modes(:,iter)=(y0.*exp(omega*t(iter)));
+    x_modes(:,iter)=(y0.*exp(omega_bg*t(iter)));
 end
 
-X_dmd=Phi*x_modes;
+X_dmd=Phi_bg*x_modes;
 
 %% sparse
-X_sparse=images-abs(X_dmd);
+% X_sparse=images-abs(X_dmd);
+% R=X_sparse.*(X_sparse<0);
+% X_dmd=R+abs(X_dmd);
+% X_s_dmd=X_sparse-R;
+
+X_sparse=U2*Sigma2*V2'-abs(X_dmd(:,1:453));
 R=X_sparse.*(X_sparse<0);
-X_dmd=R+abs(X_dmd);
+X_dmd=R+abs(X_dmd(:,1:453));
 X_s_dmd=X_sparse-R;
 %%
 % ind_show=200;
