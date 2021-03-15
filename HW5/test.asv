@@ -30,7 +30,7 @@ xlabel('Order of singular value','Fontsize',12)
 ylabel('Proportion','Fontsize',12)
 
 % low-rank approximation
-r=50; % define the rank based on the singular value spectrum
+r=100; % define the rank based on the singular value spectrum
 U2=U(:,1:r);
 Sigma2=Sigma(1:r,1:r);
 V2=V(:,1:r);
@@ -43,7 +43,7 @@ Phi=X2*V2/Sigma2*eV; % DMD modes
 lambda=diag(D);
 omega=log(lambda)/dt;
 
-bg = find(abs(omega)<1e1);
+bg = find(abs(omega)<1e-2);
 fg = setdiff(1:r, bg);
 
 omega_fg = omega(fg); % foreground

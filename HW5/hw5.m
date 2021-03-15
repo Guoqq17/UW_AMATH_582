@@ -30,13 +30,13 @@ xlabel('Order of singular value','Fontsize',12)
 ylabel('Proportion','Fontsize',12)
 
 % low-rank approximation
-r=1; % define the rank based on the singular value spectrum
-U2=U(:,1:r);
-Sigma2=Sigma(1:r,1:r);
-V2=V(:,1:r);
-S=U2'*X2*V2/Sigma2; % low rank
+r=5; % define the rank based on the singular value spectrum
+Ur=U(:,1:r);
+Sigmar=Sigma(1:r,1:r);
+Vr=V(:,1:r);
+S=Ur.'*X2*Vr/Sigmar; % low rank
 [eV,D]=eig(S);
-Phi=X2*V2/Sigma2*eV; % DMD modes
+Phi=X2*Vr/Sigmar*eV; % DMD modes
 % Phi=U*eV; % DMD modes
 
 % reconstruct low-rank DMD
@@ -55,9 +55,13 @@ X_dmd=Phi*x_modes;
 
 %% sparse
 X_sparse=images-abs(X_dmd);
+% X_s_dmd=X_sparse;
 R=X_sparse.*(X_sparse<0);
 X_dmd=R+abs(X_dmd);
-X_s_dmd=X_sparse-R;
+X_s_dmd_temp=X_sparse-R;
+%%
+% X_s_dmd = wiener2(X_s_dmd_temp,[25 25]);
+X_s_dmd=X_s_dmd_temp;
 %%
 % ind_show=200;
 figure(2)
@@ -72,7 +76,10 @@ for ind_show=1:v.numberOfFrames
     title('Backgroud extracted by Low-rank DMD')
     subplot(1,3,3)
     img3=reshape(uint8(X_s_dmd(:,ind_show)),height,width);
-    imshow(histeq(img3))
+%     img3=wiener2(img3,[5 5]);
+%     imshow(histeq(img3))
+%     img3=uint8(double(img3)/max(max(double(img3)))*255);
+    imshow(mat2gray(img3))
     title('Foregroud extracted by sparse DMD')
     drawnow
 end
