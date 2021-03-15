@@ -28,9 +28,9 @@ figure(1)
 plot(diag(Sigma)/sum(diag(Sigma)), '-o')
 xlabel('Order of singular value','Fontsize',12)
 ylabel('Proportion','Fontsize',12)
-
+%%
 % low-rank approximation
-r=50; % define the rank based on the singular value spectrum
+r=200; % define the rank based on the singular value spectrum
 U2=U(:,1:r);
 Sigma2=Sigma(1:r,1:r);
 V2=V(:,1:r);
@@ -38,17 +38,12 @@ S=U2'*X2*V2/Sigma2; % low rank
 [eV,D]=eig(S);
 Phi=X2*V2/Sigma2*eV; % DMD modes
 % Phi=U*eV; % DMD modes
-
+%%
 % reconstruct low-rank DMD
 lambda=diag(D);
 omega=log(lambda)/dt;
 
-bg = find(abs(omega)<1e1);
-fg = setdiff(1:r, bg);
-
-omega_fg = omega(fg); % foreground
-Phi_fg = Phi(:,fg); % DMD foreground modes
-
+bg = find(abs(omega)<1e-2);
 omega_bg = omega(bg); % background
 Phi_bg = Phi(:,bg); % DMD background mode
 
@@ -62,25 +57,17 @@ end
 
 X_dmd=Phi_bg*x_modes;
 
-% y0=Phi_fg\x1;
-% 
-% x_modes=zeros(length(omega_fg),length(t));
-% for iter=1:length(t)
-%     x_modes(:,iter)=(y0.*exp(omega_fg*t(iter)));
-% end
-% 
-% X_s_dmd=Phi_fg*x_modes;
-
 %% sparse
-% X_sparse=images-abs(X_dmd);
-% R=X_sparse.*(X_sparse<0);
-% X_dmd=R+abs(X_dmd);
-% X_s_dmd=X_sparse-R;
-
-X_sparse=U2*Sigma2*V2'-abs(X_dmd(:,1:453));
+X_sparse=images-abs(X_dmd);
 R=X_sparse.*(X_sparse<0);
-X_dmd=R+abs(X_dmd(:,1:453));
+X_dmd=R+abs(X_dmd);
 X_s_dmd=X_sparse-R;
+X_s_dmd=histeq(X_s_dmd);
+
+% X_sparse=U2*Sigma2*V2'-abs(X_dmd(:,1:453));
+% R=X_sparse.*(X_sparse<0);
+% X_dmd=R+abs(X_dmd(:,1:453));
+% X_s_dmd=X_sparse-R;
 %%
 % ind_show=200;
 figure(2)
@@ -94,8 +81,12 @@ for ind_show=1:v.numberOfFrames
     imshow(img2)
     title('Backgroud extracted by Low-rank DMD')
     subplot(1,3,3)
-    img3=reshape(uint8(X_s_dmd(:,ind_show)),height,width);
-    imshow(histeq(img3))
+%     img3=reshape(uint8(X_s_dmd(:,ind_show)),height,width);
+    img3=reshape(X_s_dmd(:,ind_show),height,width);
+%     imshow(histeq(img3))
+    imshow(img3)
+%     imagesc(img3)
+%     colormap(gray)
     title('Foregroud extracted by sparse DMD')
     drawnow
 end
