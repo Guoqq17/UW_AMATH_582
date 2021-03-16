@@ -48,7 +48,7 @@ xlabel('Order of singular value','Fontsize',12)
 ylabel('Total proportion','Fontsize',12)
 ylim([0,1])
 % low-rank approximation
-r=50; % define the rank based on the singular value spectrum
+r=100; % define the rank based on the singular value spectrum
 U2=U(:,1:r);
 Sigma2=Sigma(1:r,1:r);
 V2=V(:,1:r);
@@ -81,22 +81,41 @@ X_sparse=images-abs(X_dmd);
 X_s_dmd=X_sparse + 150;
 
 %% show results
-figure(2)
-for ind_show=1:v.numberOfFrames
-    subplot(1,3,1)
-    img1=reshape(uint8(images(:,ind_show)),height,width);
+%% for report (3 snapshots)
+snaps=[100,200,300];
+figure(3)
+for i=1:1:length(snaps)
+    subplot(3,3,(i-1)*3+1)
+    img1=reshape(uint8(images(:,snaps(i))),height,width);
     imshow(img1)
-    title('Original video')
-    subplot(1,3,2)
-    img2=reshape(uint8(X_dmd(:,ind_show)),height,width);
+    title(['Original video, Frame ', num2str(snaps(i))])
+    subplot(3,3,(i-1)*3+2)
+    img2=reshape(uint8(X_dmd(:,snaps(i))),height,width);
     imshow(img2)
-    title('Backgroud extracted by Low-rank DMD')
-    subplot(1,3,3)
-    img3=reshape(uint8(X_s_dmd(:,ind_show)),height,width);
+    title(['Backgroud, Frame ',num2str(snaps(i))])
+    subplot(3,3,(i-1)*3+3)
+    img3=reshape(uint8(X_s_dmd(:,snaps(i))),height,width);
     imshow(img3)
-    title('Foregroud extracted by sparse DMD')
-    drawnow
+    title(['Foregroud, Frame ', num2str(snaps(i))])
 end
+
+%% for viewing (all snapshots)
+% figure(4)
+% for ind_show=1:v.numberOfFrames
+%     subplot(1,3,1)
+%     img1=reshape(uint8(images(:,ind_show)),height,width);
+%     imshow(img1)
+%     title('Original video')
+%     subplot(1,3,2)
+%     img2=reshape(uint8(X_dmd(:,ind_show)),height,width);
+%     imshow(img2)
+%     title('Backgroud extracted by Low-rank DMD')
+%     subplot(1,3,3)
+%     img3=reshape(uint8(X_s_dmd(:,ind_show)),height,width);
+%     imshow(histeq(img3))
+%     title('Foregroud extracted by sparse DMD')
+%     drawnow
+% end
 
 
 
