@@ -1,8 +1,8 @@
 close all; clear; clc;
 
 %% import data and set up
-v=VideoReader('ski_drop_low.mp4');
-% v=VideoReader('monte_carlo_low.mp4');
+% v=VideoReader('ski_drop_low.mp4');
+v=VideoReader('monte_carlo_low.mp4');
 
 % convert data to matrix format
 width=v.Width;
@@ -72,14 +72,15 @@ for iter=1:length(t)
 end
 X_dmd=Phi_bg*x_modes;
 
-%% sparse
-X_sparse=images-abs(X_dmd);
+%% sparse method 1
+% X_sparse=images-abs(X_dmd);
 % R=X_sparse.*(X_sparse<0);
 % X_dmd=R+abs(X_dmd);
 % X_s_dmd=X_sparse-R;
 
+%% sparse method 2
+X_sparse=images-abs(X_dmd);
 X_s_dmd=X_sparse + 150;
-
 %% show results
 %% for report (3 snapshots)
 snaps=[100,200,300];
