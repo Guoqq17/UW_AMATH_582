@@ -32,10 +32,21 @@ xlabel('Order of singular value','Fontsize',12)
 ylabel('Proportion','Fontsize',12)
 
 subplot(1,2,2)
-plot(diag(Sigma(1:100, 1:100))/sum(diag(Sigma(1:100, 1:100))), '-o')
+plot(diag(Sigma(1:100, 1:100))/sum(diag(Sigma)), '-o')
 xlabel('Order of singular value','Fontsize',12)
 ylabel('Proportion','Fontsize',12)
 
+temp=diag(Sigma)/sum(diag(Sigma));
+acc_p=zeros(1,length(temp));
+for i=1:1:length(temp)
+    acc_p(i)=sum(temp(1:i));
+end
+
+figure(2)
+plot(acc_p, '-o')
+xlabel('Order of singular value','Fontsize',12)
+ylabel('Total proportion','Fontsize',12)
+ylim([0,1])
 % low-rank approximation
 r=50; % define the rank based on the singular value spectrum
 U2=U(:,1:r);
