@@ -82,7 +82,7 @@ X_dmd=Phi_bg*x_modes;
 X_sparse=images-abs(X_dmd);
 X_s_dmd=X_sparse + 150;
 %% show results
-%% for report (3 snapshots)
+% for report (3 snapshots)
 snaps=[100,200,300];
 figure(3)
 for i=1:1:length(snaps)
@@ -100,7 +100,7 @@ for i=1:1:length(snaps)
     title(['Foregroud, Frame ', num2str(snaps(i))])
 end
 
-%% for viewing (all snapshots)
+% for viewing (all snapshots)
 % figure(4)
 % for ind_show=1:v.numberOfFrames
 %     subplot(1,3,1)
@@ -117,12 +117,3 @@ end
 %     title('Foregroud extracted by sparse DMD')
 %     drawnow
 % end
-
-
-
-
-
-
-
-
-
